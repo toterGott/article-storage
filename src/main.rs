@@ -3,6 +3,7 @@ mod parser;
 mod db_manager;
 
 use teloxide::prelude::*;
+use std::fs;
 
 #[tokio::main]
 async fn main() {
@@ -10,10 +11,16 @@ async fn main() {
     log::info!("Starting bot...");
 
     let bot = Bot::from_env().auto_send();
+    let schema = fs::read_to_string("schema.sql")
+        .expect("Something went wrong reading the file schema.sql");
+
+    let connection= db_manager::get_connection();
+    connection.execute(schema).unwrap();
 
     teloxide::repl(bot, |message| async move {
         log::info!("date: {}", message.update.date);
         log::info!("update.chat.id: {}", message.update.chat.id);
+        log::info!("kind: {:?}", message.update.kind);
 
         match message.update.text().map(ToOwned::to_owned) {
             None => {
