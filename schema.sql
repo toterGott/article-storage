@@ -34,6 +34,7 @@ create table if not exists read_status
         references article_link
             on delete cascade,
     status            boolean   default false not null,
-    added_timestamp   timestamp default current_time not null,
-    updated_timestamp timestamp default current_time not null
+    added_timestamp   timestamp default current_timestamp not null,
+    updated_timestamp timestamp default current_timestamp not null,
+    unique (user_id, link_id)
 );
