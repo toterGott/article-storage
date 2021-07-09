@@ -18,9 +18,9 @@ async fn main() {
     connection.execute(schema).unwrap();
 
     teloxide::repl(bot, |message| async move {
-        log::info!("date: {}", message.update.date);
-        log::info!("update.chat.id: {}", message.update.chat.id);
-        log::info!("kind: {:?}", message.update.kind);
+        // log::info!("date: {}", message.update.date);
+        // log::info!("update.chat.id: {}", message.update.chat.id);
+        // log::info!("kind: {:?}", message.update.kind);
 
         match message.update.text().map(ToOwned::to_owned) {
             None => {
