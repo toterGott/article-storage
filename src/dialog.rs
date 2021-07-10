@@ -3,8 +3,7 @@ use teloxide::prelude::*;
 use crate::db_manager;
 use crate::parser;
 
-pub async fn handle_message(message: UpdateWithCx<AutoSend<Bot>,
-    Message>, message_str: &str) {
+pub async fn handle_message(message: UpdateWithCx<AutoSend<Bot>, Message>, message_str: &str) {
     if parser::is_link(message_str) {
         handle_link(message, message_str).await
     } else if message_str.starts_with("/") {
