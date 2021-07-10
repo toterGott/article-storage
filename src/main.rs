@@ -1,5 +1,3 @@
-use std::fs;
-
 use teloxide::prelude::*;
 
 mod dialog;
@@ -11,25 +9,20 @@ async fn main() {
     teloxide::enable_logging!();
     log::info!("Starting bot...");
 
-    let bot = Bot::from_env().auto_send();
+    db_manager::init_schema();
 
-    let schema = fs::read_to_string("schema.sql")
-        .expect("Something went wrong reading the file schema.sql");
-    let connection = db_manager::get_connection();
-    connection.execute(schema).unwrap();
+    let bot = Bot::from_env().auto_send();
 
     teloxide::repl(bot, |message| async move {
         match message.update.text().map(ToOwned::to_owned) {
             None => {
                 message.answer("Send me a text message.").await?;
             }
-            Some(ans) => {
-                log::info!("User's message: {}", ans);
-                dialog::handle_message(message, &ans).await;
+            Some(text) => {
+                log::info!("User's message: {}", text);
+                dialog::handle_message(message, &text).await;
             }
         }
-
         respond(())
-    })
-        .await;
+    }).await;
 }

@@ -1,3 +1,5 @@
+use std::fs;
+
 use sqlite;
 use sqlite::{Connection, State};
 
@@ -54,7 +56,7 @@ async fn execute_query(query: &str) {
     };
 }
 
-pub async fn create_read_status(user_id: i64, article_id: i64) {
+pub async fn init_read_status(user_id: i64, article_id: i64) {
     execute_query(
         &format!(
             "INSERT INTO read_status (user_id, link_id) VALUES ('{}', '{}')",
@@ -110,4 +112,11 @@ pub async fn mark_oldest_as_read(user_id: i64) {
                 limit 1);",
             user_id)
     ).await;
+}
+
+pub fn init_schema() {
+    let schema = fs::read_to_string("schema.sql")
+        .expect("Something went wrong reading the file schema.sql");
+    let connection = get_connection();
+    connection.execute(schema).unwrap();
 }
