@@ -59,7 +59,7 @@ async fn read_last_command(message: UpdateWithCx<AutoSend<Bot>, Message>) {
         None => {
             message.answer("You have no article to mark as read \
             in your storage\n¯\\_(ツ)_/¯ ").await.unwrap();
-            return
+            return;
         }
     };
 
