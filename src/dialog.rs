@@ -10,7 +10,8 @@ pub async fn handle_message(message: UpdateWithCx<AutoSend<Bot>,
         db_manager::save_user(user_id).await;
         db_manager::save_link(message_str).await;
         let article_id = db_manager::get_article_id(message_str).await;
-        db_manager::set_read_status(user_id, article_id).await;
+        db_manager::create_read_status(user_id, article_id).await;
+        db_manager::set_unread_status(user_id, article_id).await;
         message.answer("Link has been successfully saved").await.unwrap();
     } else if message_str.starts_with("/") {
         match message_str {

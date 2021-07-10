@@ -54,10 +54,19 @@ async fn execute_query(query: &str) {
     };
 }
 
-pub async fn set_read_status(user_id: i64, article_id: i64) {
+pub async fn create_read_status(user_id: i64, article_id: i64) {
     execute_query(
         &format!(
             "INSERT INTO read_status (user_id, link_id) VALUES ('{}', '{}')",
+            user_id,
+            article_id)
+    ).await;
+}
+
+pub async fn set_unread_status(user_id: i64, article_id: i64) {
+    execute_query(
+        &format!(
+            "UPDATE read_status SET status = false, updated_timestamp = current_timestamp where user_id = {} and link_id = {}",
             user_id,
             article_id)
     ).await;
