@@ -9,8 +9,8 @@ do
 	if [ "$NEW_HASH" != "$OLD_HASH" ]
 	then
 		cargo build --release &&
-		killall article-storage
-		nohup ./target/release/article-storage >/dev/null 2>&1 &
+		( killall article-storage
+		nohup ./target/release/article-storage >/dev/null 2>&1 & )
 	fi
 
 	sleep 5
