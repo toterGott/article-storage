@@ -5,7 +5,7 @@ Set token API in `TELOXIDE_TOKEN` variable
 
 ## Run on server
 ```
-nohup bash ci-cd.sh &
+export TELOXIDE_TOKEN=YOUR_TOKEN ; nohup bash ci-cd.sh > /dev/null 2>&1 &
 ```
 
 ## TODO:
