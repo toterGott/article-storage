@@ -1,4 +1,5 @@
 use teloxide::prelude::*;
+use teloxide::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 
 use crate::db_manager;
 use crate::parser;
@@ -50,7 +51,19 @@ async fn get_command(message: UpdateWithCx<AutoSend<Bot>, Message>) {
         None => String::from("You have no article to read in your storage\n¯\\_(ツ)_/¯ "),
     };
 
-    message.answer(link).await.unwrap();
+    // Add test button
+    let mut inline_keyboard_markup: InlineKeyboardMarkup = InlineKeyboardMarkup::default();
+    let mut rowkeyboard = vec![];
+    let mut columnkeyboard = vec![];
+    let inline: InlineKeyboardButton = InlineKeyboardButton::callback(String::from("test"), String::from("xyz prova"));
+
+    columnkeyboard.push(inline);
+    rowkeyboard.push(columnkeyboard);
+
+    inline_keyboard_markup.inline_keyboard = rowkeyboard;
+    let markup = ReplyMarkup::InlineKeyboard(inline_keyboard_markup.clone());
+
+    message.answer(link).reply_markup(markup).send().await;
 }
 
 async fn read_last_command(message: UpdateWithCx<AutoSend<Bot>, Message>) {
