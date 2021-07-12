@@ -33,7 +33,7 @@ async fn handle_command(message: UpdateWithCx<AutoSend<Bot>, Message>, message_s
     match message_str {
         "/help" => { help_command(message).await; }
         "/get" => { get_command(message).await; }
-        "/read_last" => { read_last_command(message).await; }
+        "/mark_last_as_read" => { read_last_command(message).await; }
         _ => { message.answer("Unknown command. Please use /help").await.unwrap(); }
     };
 }
@@ -42,7 +42,7 @@ async fn help_command(message: UpdateWithCx<AutoSend<Bot>, Message>) {
     message.answer("\
             /help - show this message\n\
             /get - get oldest article\n\
-            /read_last - mark oldest article as read").await.unwrap();
+            /mark_last_as_read - mark oldest article as read").await.unwrap();
 }
 
 async fn get_command(message: UpdateWithCx<AutoSend<Bot>, Message>) {
@@ -67,7 +67,7 @@ async fn get_command(message: UpdateWithCx<AutoSend<Bot>, Message>) {
 }
 
 async fn read_last_command(message: UpdateWithCx<AutoSend<Bot>, Message>) {
-    let link = match db_manager::get_oldest_article(message.update.chat.id).await {
+    match db_manager::get_oldest_article(message.update.chat.id).await {
         Some(x) => x,
         None => {
             message.answer("You have no article to mark as read \
@@ -77,5 +77,5 @@ async fn read_last_command(message: UpdateWithCx<AutoSend<Bot>, Message>) {
     };
 
     db_manager::mark_oldest_as_read(message.update.chat.id).await;
-    message.answer(&format!("Link has been marked as read: {}", &link)).await.unwrap();
+    message.answer(&format!("Last link has been marked as read")).await.unwrap();
 }
