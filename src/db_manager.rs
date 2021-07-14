@@ -29,6 +29,28 @@ pub async fn get_article_id(article_link: &str) -> i64 {
     return id;
 }
 
+pub async fn get_subscription_status(user_id: i64) -> bool {
+    let connection = get_connection();
+    let mut statement = connection
+        .prepare(
+            &format!(
+                "SELECT update_subscription FROM bot_user WHERE user_id = {};",
+                user_id)
+        ).unwrap();
+
+    let mut status: bool = false;
+    while let State::Row = statement.next().unwrap() {
+        let res = statement.read::<i64>(0).unwrap();
+
+        if res == 1 {
+            status = true
+        } else {
+            status = false
+        }
+    }
+    return status;
+}
+
 pub async fn save_user(user_id: i64) {
     execute_query(
         &format!(
@@ -119,4 +141,14 @@ pub fn init_schema() {
         .expect("Something went wrong reading the file schema.sql");
     let connection = get_connection();
     connection.execute(schema).unwrap();
+}
+
+pub async fn switch_new_version_notification(user_id: i64) {
+    execute_query(
+        &format!(
+            "update bot_user \
+            set update_subscription = not update_subscription \
+            where user_id = {};",
+            user_id)
+    ).await;
 }

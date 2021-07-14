@@ -5,7 +5,8 @@ create table if not exists bot_user
     user_id           bigint not null
         constraint user_pk
             primary key,
-    notification_time bigint
+    notification_time bigint,
+    update_subscription bool default false not null
 );
 
 create unique index if not exists user_user_id_uindex

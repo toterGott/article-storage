@@ -31,18 +31,23 @@ async fn handle_link(message: UpdateWithCx<AutoSend<Bot>, Message>, message_str:
 
 async fn handle_command(message: UpdateWithCx<AutoSend<Bot>, Message>, message_str: &str) {
     match message_str {
-        "/help" => { help_command(message).await; }
+        "/switch_new_version_notification" => {
+            switch_new_version_notification(message).await;
+        }
         "/get" => { get_command(message).await; }
         "/mark_last_as_read" => { read_last_command(message).await; }
         _ => { message.answer("Unknown command. Please use /help").await.unwrap(); }
     };
 }
 
-async fn help_command(message: UpdateWithCx<AutoSend<Bot>, Message>) {
-    message.answer("\
-            /help - show this message\n\
-            /get - get oldest article\n\
-            /mark_last_as_read - mark oldest article as read").await.unwrap();
+async fn switch_new_version_notification(message: UpdateWithCx<AutoSend<Bot>, Message>) {
+    db_manager::switch_new_version_notification(message.update.chat.id).await;
+    let status = db_manager::get_subscription_status(message.update.chat.id).await;
+    if status {
+        message.answer("Now you subscribed to update notifications").await.unwrap();
+    } else {
+        message.answer("You has been unsubscribed from update notifications").await.unwrap();
+    }
 }
 
 async fn get_command(message: UpdateWithCx<AutoSend<Bot>, Message>) {
