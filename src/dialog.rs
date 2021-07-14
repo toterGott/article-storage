@@ -31,8 +31,8 @@ async fn handle_link(message: UpdateWithCx<AutoSend<Bot>, Message>, message_str:
 
 async fn handle_command(message: UpdateWithCx<AutoSend<Bot>, Message>, message_str: &str) {
     match message_str {
-        "/switch_new_version_notification" => {
-            switch_new_version_notification(message).await;
+        "/switch_changelog_notification" => {
+            switch_changelog_notification(message).await;
         }
         "/get" => { get_command(message).await; }
         "/mark_last_as_read" => { read_last_command(message).await; }
@@ -40,8 +40,8 @@ async fn handle_command(message: UpdateWithCx<AutoSend<Bot>, Message>, message_s
     };
 }
 
-async fn switch_new_version_notification(message: UpdateWithCx<AutoSend<Bot>, Message>) {
-    db_manager::switch_new_version_notification(message.update.chat.id).await;
+async fn switch_changelog_notification(message: UpdateWithCx<AutoSend<Bot>, Message>) {
+    db_manager::switch_changelog_notification(message.update.chat.id).await;
     let status = db_manager::get_subscription_status(message.update.chat.id).await;
     if status {
         message.answer("Now you subscribed to update notifications").await.unwrap();
@@ -60,7 +60,7 @@ async fn get_command(message: UpdateWithCx<AutoSend<Bot>, Message>) {
     let mut inline_keyboard_markup: InlineKeyboardMarkup = InlineKeyboardMarkup::default();
     let mut rowkeyboard = vec![];
     let mut columnkeyboard = vec![];
-    let inline: InlineKeyboardButton = InlineKeyboardButton::callback(String::from("test"), String::from("xyz prova"));
+    let inline: InlineKeyboardButton = InlineKeyboardButton::callback(String::from("Button doesn't work, sorry :("), String::from("test callback"));
 
     columnkeyboard.push(inline);
     rowkeyboard.push(columnkeyboard);

@@ -1,4 +1,5 @@
 use teloxide::prelude::*;
+use std::fs;
 
 mod dialog;
 mod parser;
@@ -12,6 +13,11 @@ async fn main() {
     db_manager::init_schema();
 
     let bot = Bot::from_env().auto_send();
+    let changelog = fs::read_to_string("changelog_message.txt")
+        .expect("Something went wrong reading the changelog");
+    for sub in db_manager::get_subscribed_users().await {
+        bot.send_message(sub, &changelog).send().await;
+    }
 
     teloxide::repl(bot, |message| async move {
         match message.update.text().map(ToOwned::to_owned) {

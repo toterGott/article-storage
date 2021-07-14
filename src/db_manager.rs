@@ -143,7 +143,7 @@ pub fn init_schema() {
     connection.execute(schema).unwrap();
 }
 
-pub async fn switch_new_version_notification(user_id: i64) {
+pub async fn switch_changelog_notification(user_id: i64) {
     execute_query(
         &format!(
             "update bot_user \
@@ -151,4 +151,21 @@ pub async fn switch_new_version_notification(user_id: i64) {
             where user_id = {};",
             user_id)
     ).await;
+}
+
+pub async fn get_subscribed_users() -> Vec<i64> {
+    let connection = get_connection();
+    let mut statement = connection
+        .prepare(
+            &format!(
+                "SELECT user_id \
+                FROM bot_user \
+                WHERE update_subscription = true")
+        ).unwrap();
+
+    let mut res: Vec<i64> = vec![];
+    while let State::Row = statement.next().unwrap() {
+        res.push(statement.read::<i64>(0).unwrap());
+    }
+    return res
 }
