@@ -10,6 +10,7 @@ export TELOXIDE_TOKEN=YOUR_TOKEN ; nohup bash ci-cd.sh > /dev/null 2>&1 &
 
 ## TODO:
 - [ ] Add migration from Pocket
+- [ ] Add database migration system
 - [ ] Add statistics
 - [ ] Add article parsing and saving using soup crate
 - [ ] Add "Mark as read" button under an article message *unable to implement due to no library support, waiting for the feature
