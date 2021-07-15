@@ -1,5 +1,4 @@
 Version 0.1.0
 Hello! :)
-This is a first changelog message!
-Here you will find bot updates.
+Added file downloading! Next step file parsing and filtration!
 You can unsubscribe from it with /switch_changelog_notification
