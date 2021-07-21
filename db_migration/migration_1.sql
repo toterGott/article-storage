@@ -39,3 +39,5 @@ create table if not exists read_status
     updated_timestamp timestamp default current_timestamp not null,
     unique (user_id, link_id)
 );
+
+pragma user_version = 1;

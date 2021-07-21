@@ -1,4 +1,3 @@
-Version 0.1.0
+Version 0.1.2
 Hello! :)
-Added file downloading! Next step file parsing and filtration!
-You can unsubscribe from it with /switch_changelog_notification
+Added database migration, now application is more reliable!

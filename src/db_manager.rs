@@ -60,7 +60,7 @@ pub async fn save_user(user_id: i64) {
 }
 
 pub fn get_connection() -> Connection {
-    match sqlite::open("article-storage") {
+    match sqlite::open("article-storage.db") {
         Ok(connection) => { return connection; }
         Err(error) => {
             log::error!("Unable to open SQLite connection: {}", error);
@@ -137,10 +137,22 @@ pub async fn mark_oldest_as_read(user_id: i64) {
 }
 
 pub fn init_schema() {
-    let schema = fs::read_to_string("schema.sql")
-        .expect("Something went wrong reading the file schema.sql");
+    let mut db_version = get_db_version();
+    log::info!("db version: {}", db_version);
     let connection = get_connection();
-    connection.execute(schema).unwrap();
+    loop {
+        db_version += 1;
+        let path = &format!("db_migration/migration_{}.sql", db_version);
+        let migration_sql = match fs::read_to_string(path) {
+            Ok(x) => x,
+            Err(e) => {
+                log::info!("no such file {}", path);
+                break
+            }
+        };
+        log::info!("executing script: {}", migration_sql);
+        connection.execute(migration_sql).unwrap();
+    }
 }
 
 pub async fn switch_changelog_notification(user_id: i64) {
@@ -167,5 +179,21 @@ pub async fn get_subscribed_users() -> Vec<i64> {
     while let State::Row = statement.next().unwrap() {
         res.push(statement.read::<i64>(0).unwrap());
     }
-    return res
+    return res;
+}
+
+pub fn get_db_version() -> i64 {
+    let connection = get_connection();
+    let mut statement = connection
+        .prepare(
+            &format!(
+                "pragma user_version")
+        ).unwrap();
+
+    let mut id: i64 = -1;
+    while let State::Row = statement.next().unwrap() {
+        id = statement.read::<i64>(0).unwrap();
+    }
+    if id == -1 { log::error!("Article id can't be fetched") }
+    return id;
 }
