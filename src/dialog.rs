@@ -1,3 +1,6 @@
+use std::io::Read;
+
+use soup::Soup;
 use teloxide::prelude::*;
 use teloxide::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 
@@ -56,19 +59,15 @@ async fn get_command(message: UpdateWithCx<AutoSend<Bot>, Message>) {
         None => String::from("You have no article to read in your storage\n¯\\_(ツ)_/¯ "),
     };
 
-    // Add test button
-    let mut inline_keyboard_markup: InlineKeyboardMarkup = InlineKeyboardMarkup::default();
-    let mut rowkeyboard = vec![];
-    let mut columnkeyboard = vec![];
-    let inline: InlineKeyboardButton = InlineKeyboardButton::callback(String::from("Button doesn't work, sorry :("), String::from("test callback"));
-
-    columnkeyboard.push(inline);
-    rowkeyboard.push(columnkeyboard);
-
-    inline_keyboard_markup.inline_keyboard = rowkeyboard;
-    let markup = ReplyMarkup::InlineKeyboard(inline_keyboard_markup.clone());
-
-    message.answer(link).reply_markup(markup).send().await;
+    message.answer(&link).send().await;
+    log::info!("Downloading...");
+    let body = reqwest::get(&link)
+        .await.unwrap()
+        .text()
+        .await.unwrap();
+    let soup = Soup::new(&body);
+    let text = soup.text();
+    log::info!("Body: {}", text);
 }
 
 async fn read_last_command(message: UpdateWithCx<AutoSend<Bot>, Message>) {

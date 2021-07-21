@@ -9,6 +9,7 @@ export TELOXIDE_TOKEN=YOUR_TOKEN ; nohup bash ci-cd.sh > /dev/null 2>&1 &
 ```
 
 ## TODO:
+- [ ] Add content scrapping
 - [ ] Add migration from Pocket
 - [ ] Add statistics
 - [ ] Add article parsing and saving using soup crate
