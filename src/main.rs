@@ -24,22 +24,9 @@ async fn main() {
     }
 
     teloxide::repl(bot, |message| async move {
-        // TODO refactor handling
         match message.update.document() {
             Some(file) => {
-                message.answer("Downloading file...").await?;
-                log::info!("File id {}", file.file_id);
-                log::info!("File size {}", file.file_size.unwrap());
-                let downloader_bot = Bot::from_env();
-                let file_content = downloader_bot
-                    .get_file(&file.file_id).send().await?;
-                log::info!("File path: {}", file_content.file_path);
-                let mut output_file = File::create(
-                    &format!("./{}", file_content.file_path)).await.unwrap();
-                let TgFile { file_path, .. } = downloader_bot.get_file(&file.file_id).send().await?;
-                downloader_bot
-                    .download_file(&file_path, &mut output_file).await.unwrap();
-                message.answer("File has been downloaded").await?;
+                dialog::handle_file(&message, file).await;
             }
             None => match message.update.text().map(ToOwned::to_owned) {
                 None => {

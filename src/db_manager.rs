@@ -146,7 +146,7 @@ pub fn init_schema() {
         let migration_sql = match fs::read_to_string(path) {
             Ok(x) => x,
             Err(e) => {
-                log::info!("no such file {}", path);
+                log::info!("Schema is up to date");
                 break
             }
         };
@@ -185,15 +185,12 @@ pub async fn get_subscribed_users() -> Vec<i64> {
 pub fn get_db_version() -> i64 {
     let connection = get_connection();
     let mut statement = connection
-        .prepare(
-            &format!(
-                "pragma user_version")
-        ).unwrap();
+        .prepare("pragma user_version").unwrap();
 
     let mut id: i64 = -1;
     while let State::Row = statement.next().unwrap() {
         id = statement.read::<i64>(0).unwrap();
     }
-    if id == -1 { log::error!("Article id can't be fetched") }
+    if id == -1 { log::error!("Version can't be fetch") }
     return id;
 }
