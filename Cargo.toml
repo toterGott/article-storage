@@ -1,6 +1,6 @@
 [package]
 name = "article-storage"
-version = "0.1.3"
+version = "0.1.4"
 authors = ["toterGott <mail@totergott.com>"]
 edition = "2018"
 
