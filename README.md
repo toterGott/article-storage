@@ -9,6 +9,7 @@ export TELOXIDE_TOKEN=YOUR_TOKEN ; nohup bash ci-cd.sh > /dev/null 2>&1 &
 ```
 
 ## TODO:
+- [ ] Limit files uploading
 - [ ] Add content scrapping
 - [ ] Add migration from Pocket
 - [ ] Add statistics

@@ -3,7 +3,6 @@ use std::io::Read;
 
 use extrablatt::Extrablatt;
 use futures::StreamExt;
-use soup::Soup;
 use teloxide::net::Download;
 use teloxide::prelude::*;
 use teloxide::prelude::*;
@@ -67,14 +66,6 @@ async fn get_command(message: UpdateWithCx<AutoSend<Bot>, Message>) {
     };
 
     message.answer(&link).send().await;
-    log::info!("Downloading...");
-    let body = reqwest::get(&link)
-        .await.unwrap()
-        .text()
-        .await.unwrap();
-    let soup = Soup::new(&body);
-    let text = soup.text();
-    log::info!("Body: {}", text);
 }
 
 async fn read_last_command(message: UpdateWithCx<AutoSend<Bot>, Message>) {
@@ -95,7 +86,7 @@ pub async fn handle_file(message: &UpdateWithCx<AutoSend<Bot>, Message>, file: &
     message.answer("Downloading file...").await.unwrap();
     log::info!("File id {}", file.file_id);
     log::info!("File size {}", file.file_size.unwrap());
-    if file.file_size.unwrap() > 20971520 // 20MB
+    if file.file_size.unwrap() > 20 * 1024 * 1024
     {
         message.answer("Sorry, file is too large. Max size is 20MB.").await.unwrap();
     }
