@@ -110,7 +110,6 @@ pub async fn get_oldest_article(user_id: i64) -> Option<String> {
                 user_id)
         ).unwrap();
 
-    // TODO this language makes hate myself
     let mut link: String = String::new();
     while let State::Row = statement.next().unwrap() {
         link = statement.read::<String>(0).unwrap();

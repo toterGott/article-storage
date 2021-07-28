@@ -99,4 +99,16 @@ pub async fn handle_file(message: &UpdateWithCx<AutoSend<Bot>, Message>, file: &
     let TgFile { file_path, .. } = downloader_bot.get_file(&file.file_id).send().await.unwrap();
     downloader_bot.download_file(&file_path, &mut output_file).await.unwrap();
     message.answer("File has been downloaded").await.unwrap();
+    let mut file_content = match fs::read_to_string(&file_path) {
+        Ok(x) => x,
+        Err(e) => {
+            log::info!("Read error {}", e);
+            return;
+        }
+    };
+    let split_pattern = String::from("<h1>Read Archive</h1>");
+    let split = file_path.split(&split_pattern);
+    let split_vec = split.collect::<Vec<&str>>();
+    let links = parser::parse_links(&split_vec[0]);
+    log::info!("Links: {:?}", links);
 }
