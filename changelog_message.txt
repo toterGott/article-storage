@@ -1,3 +1,4 @@
 Version 0.1.5
 Hello! :)
 Added migration from Pocket. Uploaded Pocket's backup will parsed and unread articles will be added.
+Added stats.

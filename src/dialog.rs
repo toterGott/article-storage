@@ -55,9 +55,18 @@ async fn handle_command(message: UpdateWithCx<AutoSend<Bot>, Message>, message_s
             switch_changelog_notification(message).await;
         }
         "/get" => { get_command(message).await; }
-        "/mark_last_as_read" => { read_last_command(message).await; }
+        "/mark_oldest_as_read" => { read_oldest_command(message).await; }
+        "/stats" => { get_stats(message).await; }
         _ => { message.answer("Unknown command. Please use /help").await.unwrap(); }
     };
+}
+
+async fn get_stats(message: UpdateWithCx<AutoSend<Bot>, Message>) {
+    let read = db_manager::get_article_counter_where_status(message.update.chat.id, true).await;
+    let unread = db_manager::get_article_counter_where_status(message.update.chat.id, false).await;
+    message.answer(
+        format!("Read articles: {}\nUnread articles: {}\n", read, unread)
+    ).await.unwrap();
 }
 
 async fn switch_changelog_notification(message: UpdateWithCx<AutoSend<Bot>, Message>) {
@@ -79,7 +88,7 @@ async fn get_command(message: UpdateWithCx<AutoSend<Bot>, Message>) {
     message.answer(&link).send().await;
 }
 
-async fn read_last_command(message: UpdateWithCx<AutoSend<Bot>, Message>) {
+async fn read_oldest_command(message: UpdateWithCx<AutoSend<Bot>, Message>) {
     match db_manager::get_oldest_article(message.update.chat.id).await {
         Some(x) => x,
         None => {
@@ -90,7 +99,9 @@ async fn read_last_command(message: UpdateWithCx<AutoSend<Bot>, Message>) {
     };
 
     db_manager::mark_oldest_as_read(message.update.chat.id).await;
-    message.answer(&format!("Last link has been marked as read")).await.unwrap();
+    let unread = db_manager::get_article_counter_where_status(message.update.chat.id, false).await;
+    message.answer(&format!("Oldest link has been marked as read.\n\
+    There is {} unread articles left in the storage.", unread)).await.unwrap();
 }
 
 pub async fn handle_file(message: &UpdateWithCx<AutoSend<Bot>, Message>, file: &Document) {
@@ -109,7 +120,6 @@ pub async fn handle_file(message: &UpdateWithCx<AutoSend<Bot>, Message>, file: &
         &format!("./{}", file_content.file_path)).await.unwrap();
     let TgFile { file_path, .. } = downloader_bot.get_file(&file.file_id).send().await.unwrap();
     downloader_bot.download_file(&file_path, &mut output_file).await.unwrap();
-    message.answer("File has been downloaded").await.unwrap();
     let mut file_content = match fs::read_to_string(&file_path) {
         Ok(x) => x,
         Err(e) => {
@@ -122,11 +132,20 @@ pub async fn handle_file(message: &UpdateWithCx<AutoSend<Bot>, Message>, file: &
     let split_vec = split.collect::<Vec<&str>>();
     message.answer("Parsing links...").await.unwrap();
     let links = parser::parse_links(&split_vec[0]).await;
-    log::info!("Links: {:?}", links);
-    for link in links {
+    log::info!("Links: {:?}", &links);
+    for link in &links {
         let link_to_save = link.as_str();
         handle_link_silent(message, link.as_str()).await;
         db_manager::save_link(&link_to_save).await;
         log::info!("Saving {}", &link_to_save)
     }
+    let read = db_manager::get_article_counter_where_status(message.update.chat.id, true).await;
+    let unread = db_manager::get_article_counter_where_status(message.update.chat.id, false).await;
+    message.answer(
+        format!(
+            "Links has been successfully saved.\n\
+            Added {} new links.\n\
+            Now you have {} unread and {} read articles.",
+            links.len(), unread, read)
+    ).await.unwrap();
 }
