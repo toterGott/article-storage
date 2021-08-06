@@ -25,6 +25,17 @@ pub async fn handle_message(message: UpdateWithCx<AutoSend<Bot>, Message>, messa
     }
 }
 
+async fn handle_link_silent(message: &UpdateWithCx<AutoSend<Bot>, Message>, message_str: &str) {
+    let user_id = message.update.chat.id;
+    db_manager::save_user(user_id).await;
+
+    db_manager::save_link(message_str).await;
+    let article_id = db_manager::get_article_id(message_str).await;
+
+    db_manager::init_read_status(user_id, article_id).await;
+    db_manager::set_unread_status(user_id, article_id).await;
+}
+
 async fn handle_link(message: UpdateWithCx<AutoSend<Bot>, Message>, message_str: &str) {
     let user_id = message.update.chat.id;
     db_manager::save_user(user_id).await;
@@ -107,8 +118,15 @@ pub async fn handle_file(message: &UpdateWithCx<AutoSend<Bot>, Message>, file: &
         }
     };
     let split_pattern = String::from("<h1>Read Archive</h1>");
-    let split = file_path.split(&split_pattern);
+    let split = file_content.split(&split_pattern);
     let split_vec = split.collect::<Vec<&str>>();
-    let links = parser::parse_links(&split_vec[0]);
+    message.answer("Parsing links...").await.unwrap();
+    let links = parser::parse_links(&split_vec[0]).await;
     log::info!("Links: {:?}", links);
+    for link in links {
+        let link_to_save = link.as_str();
+        handle_link_silent(message, link.as_str()).await;
+        db_manager::save_link(&link_to_save).await;
+        log::info!("Saving {}", &link_to_save)
+    }
 }

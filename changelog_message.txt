@@ -1,3 +1,3 @@
-Version 0.1.4
+Version 0.1.5
 Hello! :)
-Added database migration, now application is more reliable!
+Added migration from Pocket. Uploaded Pocket's backup will parsed and unread articles will be added.
