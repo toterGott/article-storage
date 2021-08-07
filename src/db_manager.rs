@@ -105,7 +105,7 @@ pub async fn get_oldest_article(user_id: i64) -> Option<String> {
                 from read_status
                     join article_link al on read_status.link_id = al.id
                 where user_id = {} and status = false
-                order by added_timestamp
+                order by updated_timestamp
                 limit 1;",
                 user_id)
         ).unwrap();
@@ -128,7 +128,9 @@ pub async fn mark_oldest_as_read(user_id: i64) {
             set status = true,
             updated_timestamp = current_timestamp
             where user_id = {}
-            and link_id = (select link_id from read_status where user_id = {} and status = false limit 1);",
+            and link_id = (select link_id from read_status
+                            where user_id = {} and status = false
+                             order by updated_timestamp limit 1);",
             user_id, user_id)
     ).await;
 }
