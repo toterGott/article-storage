@@ -101,7 +101,7 @@ async fn read_oldest_command(message: UpdateWithCx<AutoSend<Bot>, Message>) {
     db_manager::mark_oldest_as_read(message.update.chat.id).await;
     let unread = db_manager::get_article_counter_where_status(message.update.chat.id, false).await;
     message.answer(&format!("Oldest link has been marked as read.\n\
-    There is {} unread articles left in the storage.", unread)).await.unwrap();
+    There are {} unread articles left in the storage.", unread)).await.unwrap();
 }
 
 pub async fn handle_file(message: &UpdateWithCx<AutoSend<Bot>, Message>, file: &Document) {
